@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Temple Accounts</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; background: #f5f5f0; color: #1a1a1a; min-height: 100vh; }
+  #signinScreen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 1rem; text-align: center; padding: 2rem; }
+  .signin-card { background: #fff; border-radius: 16px; padding: 2.5rem 2rem; max-width: 380px; width: 100%; border: 1px solid #e8e8e0; }
+  .temple-icon { font-size: 48px; margin-bottom: 0.5rem; }
+  .signin-card h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; color: #1a1a1a; }
+  .signin-card p { font-size: 13px; color: #888; margin-bottom: 1.5rem; line-height: 1.6; }
+  .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 11px 20px; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; font-weight: 500; color: #333; transition: background 0.15s; }
+  .google-btn:hover { background: #f8f8f8; }
+  .sheet-id { font-size: 11px; color: #aaa; margin-top: 1rem; word-break: break-all; }
+  .client-id-section { margin-top: 1.5rem; border-top: 1px solid #f0f0f0; padding-top: 1.5rem; text-align: left; }
+  .client-id-section label { font-size: 12px; font-weight: 500; color: #555; display: block; margin-bottom: 6px; }
+  .client-id-section input { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; color: #333; }
+  .client-id-section small { font-size: 11px; color: #aaa; display: block; margin-top: 4px; }
+  #mainApp { display: none; }
+  .topbar { background: #fff; border-bottom: 1px solid #e8e8e0; padding: 0 1.5rem; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .topbar-logo { width: 32px; height: 32px; background: #1D9E75; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; }
+  .topbar-title { font-size: 16px; font-weight: 600; color: #1a1a1a; }
+  .topbar-right { display: flex; align-items: center; gap: 8px; }
+  .user-chip { font-size: 12px; color: #888; background: #f5f5f0; padding: 4px 10px; border-radius: 20px; }
+  .main-content { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+  .status-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #666; background: #fff; border: 1px solid #e8e8e0; border-radius: 8px; padding: 8px 14px; margin-bottom: 1.5rem; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #1D9E75; flex-shrink: 0; }
+  .dot.red { background: #E24B4A; }
+  .dot.yellow { background: #EF9F27; }
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid #e8e8e0; margin-bottom: 1.5rem; }
+  .tab { padding: 10px 18px; cursor: pointer; border: none; background: none; font-size: 13px; color: #888; border-bottom: 2px solid transparent; margin-bottom: -1px; font-weight: 500; transition: color 0.15s; }
+  .tab:hover { color: #444; }
+  .tab.active { color: #1D9E75; border-bottom-color: #1D9E75; }
+  .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .metric { background: #fff; border: 1px solid #e8e8e0; border-radius: 10px; padding: 1rem 1.25rem; }
+  .metric-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .metric-value { font-size: 22px; font-weight: 600; }
+  .metric-value.green { color: #1D9E75; }
+  .metric-value.red { color: #E24B4A; }
+  .metric-value.blue { color: #185FA5; }
+  .metric-value.gray { color: #444; }
+  .toolbar { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+  .toolbar input, .toolbar select { padding: 7px 10px; border: 1px solid #ddd; border-radius: 7px; font-size: 13px; color: #333; background: #fff; }
+  .toolbar input:focus, .toolbar select:focus { outline: none; border-color: #1D9E75; }
+  .toolbar input[type="text"] { min-width: 180px; }
+  .toolbar-right { margin-left: auto; display: flex; gap: 8px; }
+  .btn { padding: 7px 14px; border: 1px solid #ddd; border-radius: 7px; background: #fff; color: #333; cursor: pointer; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; white-space: nowrap; }
+  .btn:hover { background: #f5f5f0; }
+  .btn-green { background: #1D9E75; color: #fff; border-color: #1D9E75; }
+  .btn-green:hover { background: #0F6E56; }
+  .btn-red { background: #E24B4A; color: #fff; border-color: #E24B4A; }
+  .btn-red:hover { background: #A32D2D; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .export-wrap { position: relative; }
+  .export-drop { display: none; position: absolute; right: 0; top: 38px; background: #fff; border: 1px solid #ddd; border-radius: 8px; min-width: 170px; z-index: 50; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  .export-drop.open { display: block; }
+  .export-drop button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 14px; background: none; border: none; font-size: 13px; color: #333; cursor: pointer; text-align: left; }
+  .export-drop button:hover { background: #f5f5f0; }
+  .export-drop button:first-child { border-radius: 8px 8px 0 0; }
+  .export-drop button:last-child { border-radius: 0 0 8px 8px; }
+  .export-drop hr { border: none; border-top: 1px solid #f0f0f0; }
+  .table-wrap { background: #fff; border: 1px solid #e8e8e0; border-radius: 10px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 10px 12px; background: #fafaf8; border-bottom: 1px solid #e8e8e0; font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0f0ec; color: #333; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafaf8; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .badge-in { background: #E1F5EE; color: #085041; }
+  .badge-ex { background: #FCEBEB; color: #791F1F; }
+  .amount-in { color: #0F6E56; font-weight: 600; }
+  .amount-ex { color: #A32D2D; font-weight: 600; }
+  .pagination { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 12px 16px; background: #fafaf8; border-top: 1px solid #e8e8e0; font-size: 12px; color: #888; }
+  .empty-state { text-align: center; padding: 3rem; color: #aaa; }
+  .empty-state div { font-size: 32px; margin-bottom: 8px; }
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; align-items: center; justify-content: center; }
+  .modal-bg.open { display: flex; }
+  .modal { background: #fff; border-radius: 14px; padding: 1.75rem; width: 460px; max-width: 95vw; border: 1px solid #e8e8e0; }
+  .modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 1.25rem; }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 500; color: #666; margin-bottom: 5px; }
+  .form-group input, .form-group select { width: 100%; padding: 9px 11px; border: 1px solid #ddd; border-radius: 7px; font-size: 13px; color: #333; background: #fff; }
+  .form-group input:focus, .form-group select:focus { outline: none; border-color: #1D9E75; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.5rem; }
+  .chart-box { background: #fff; border: 1px solid #e8e8e0; border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem; }
+  .chart-box h3 { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 1rem; }
+  .chart-canvas { height: 220px; }
+  @media (max-width: 600px) {
+    .topbar-title { font-size: 14px; }
+    .metric-grid { grid-template-columns: 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .toolbar input[type="text"] { min-width: 120px; }
+  }
+</style>
+</head>
+<body>
+<div id="signinScreen">
+  <div class="signin-card">
+    <div class="temple-icon">🛕</div>
+    <h1>Temple Accounts</h1>
+    <p>Sign in with your Google account to access and manage your temple accounting spreadsheet.</p>
+    <div class="client-id-section">
+      <label>Google OAuth Client ID</label>
+      <input type="text" id="clientIdInput" placeholder="Paste your Client ID here..." />
+      <small>From Google Cloud Console → APIs &amp; Services → Credentials</small>
+    </div>
+    <br>
+    <button class="google-btn" onclick="startOAuth()">
+      <svg width="18" height="18" viewBox="0 0 18 18">
+        <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/>
+        <path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/>
+        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58z"/>
+      </svg>
+      Sign in with Google
+    </button>
+    <div class="sheet-id">Sheet: 1YBw96Mkf5qpOf7CoRnqPyIk0goXimgCSErSEXFnneP0</div>
+  </div>
+</div>
+<div id="mainApp">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">🛕</div>
+      <span class="topbar-title">Temple Accounts</span>
+    </div>
+    <div class="topbar-right">
+      <span class="user-chip" id="userEmail"></span>
+      <button class="btn btn-sm" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+  <div class="main-content">
+    <div class="status-bar">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">Loading...</span>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('ledger', this)">Ledger</button>
+      <button class="tab" onclick="switchTab('reports', this)">Reports</button>
+    </div>
+    <div id="tabLedger">
+      <div class="metric-grid">
+        <div class="metric"><div class="metric-label">Total income</div><div class="metric-value green" id="mIncome">—</div></div>
+        <div class="metric"><div class="metric-label">Total expense</div><div class="metric-value red" id="mExpense">—</div></div>
+        <div class="metric"><div class="metric-label">Balance</div><div class="metric-value blue" id="mBalance">—</div></div>
+        <div class="metric"><div class="metric-label">Entries</div><div class="metric-value gray" id="mCount">—</div></div>
+      </div>
+      <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="Search particulars, L.Head, RNO..." oninput="applyFilters()">
+        <select id="filterType" onchange="applyFilters()">
+          <option value="">All types</option>
+          <option value="income">Income only</option>
+          <option value="expense">Expense only</option>
+        </select>
+        <select id="filterYear" onchange="applyFilters()">
+          <option value="">All S.Years</option>
+        </select>
+        <input type="date" id="fromDate" onchange="applyFilters()">
+        <input type="date" id="toDate" onchange="applyFilters()">
+        <button class="btn btn-sm" onclick="clearFilters()">Clear</button>
+        <div class="toolbar-right">
+          <button class="btn btn-sm" onclick="loadData()">Refresh</button>
+          <div class="export-wrap" id="exportWrap">
+            <button class="btn btn-sm" onclick="toggleExport()">Export</button>
+            <div class="export-drop" id="exportDrop">
+              <button onclick="exportCSV(); toggleExport()">Export as CSV</button>
+              <hr>
+              <button onclick="exportPDF(); toggleExport()">Export as PDF</button>
+            </div>
+          </div>
+          <button class="btn btn-green btn-sm" onclick="openAddModal()">+ Add entry</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Date</th><th>RNO</th><th>S.Year</th><th>Particulars</th><th>Income</th><th>Expense</th><th>L.Head</th><th>Type</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        <div id="emptyState" class="empty-state" style="display:none;"><div>📭</div>No entries found</div>
+        <div class="pagination">
+          <span id="pageInfo"></span>&nbsp;
+          <button class="btn btn-sm" onclick="prevPage()">&#8249;</button>
+          <button class="btn btn-sm" onclick="nextPage()">&#8250;</button>
+        </div>
+      </div>
+    </div>
+    <div id="tabReports" style="display:none;">
+      <div class="metric-grid" style="margin-bottom:1.5rem;">
+        <div class="metric"><div class="metric-label">Total income</div><div class="metric-value green" id="rIncome">—</div></div>
+        <div class="metric"><div class="metric-label">Total expense</div><div class="metric-value red" id="rExpense">—</div></div>
+        <div class="metric"><div class="metric-label">Net balance</div><div class="metric-value blue" id="rBalance">—</div></div>
+      </div>
+      <div class="chart-box">
+        <h3>Income vs Expense by S.Year</h3>
+        <div class="chart-canvas"><canvas id="barChart"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3>Category Breakdown by L.Head</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>L.Head</th><th>Income</th><th>Expense</th><th>Net</th></tr></thead>
+            <tbody id="lheadBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="entryModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h2 id="modalTitle">Add entry</h2>
+    <div class="form-row">
+      <div class="form-group"><label>Date</label><input type="date" id="fDate"></div>
+      <div class="form-group"><label>Receipt No. (RNO)</label><input type="text" id="fRno" placeholder="e.g. R001"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Samvat Year (SYEAR)</label><input type="text" id="fSyear" placeholder="e.g. 2081"></div>
+      <div class="form-group"><label>L.Head</label><input type="text" id="fLhead" list="lheadList" placeholder="e.g. Donations"><datalist id="lheadList"></datalist></div>
+    </div>
+    <div class="form-group"><label>Particulars</label><input type="text" id="fParticulars" placeholder="Description of transaction"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Income (Rs.)</label><input type="number" id="fIncome" placeholder="0" min="0"></div>
+      <div class="form-group"><label>Expense (Rs.)</label><input type="number" id="fExpense" placeholder="0" min="0"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-green" onclick="saveEntry()" id="saveBtn">Save entry</button>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="deleteModal">
+  <div class="modal">
+    <h2>Delete this entry?</h2>
+    <p style="color:#888;font-size:13px;margin-top:6px;line-height:1.6;">This will permanently remove the row from your Google Sheet.</p>
+    <div class="modal-footer">
+      <button class="btn" onclick="document.getElementById('deleteModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-red" onclick="confirmDelete()">Delete entry</button>
+    </div>
+  </div>
+</div>
+<script>
+const SHEET_ID='1YBw96Mkf5qpOf7CoRnqPyIk0goXimgCSErSEXFnneP0';
+const SHEET_NAME='Sheet1';
+const SCOPES='https://www.googleapis.com/auth/spreadsheets';
+let accessToken=null,allData=[],filteredData=[],currentPage=1,editRowIndex=null,deleteRowIndex=null,barChart=null;
+const PAGE_SIZE=25;
+function fmt(n){if(!n&&n!==0)return'Rs.0';return'Rs.'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});}
+function fmtNum(n){return Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});}
+function setStatus(msg,color){document.getElementById('statusText').textContent=msg;const d=document.getElementById('statusDot');d.className='dot'+(color==='red'?' red':color==='yellow'?' yellow':'');}
+function startOAuth(){
+  const cid=(document.getElementById('clientIdInput').value||'').trim();
+  if(!cid){alert('Please paste your Google OAuth Client ID.');return;}
+  localStorage.setItem('templeClientId',cid);
+  const redirect=window.location.href.split('#')[0].split('?')[0];
+  const url=`https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(cid)}&redirect_uri=${encodeURIComponent(redirect)}&response_type=token&scope=${encodeURIComponent(SCOPES)}&prompt=select_account`;
+  const win=window.open(url,'googleauth','width=520,height=620');
+  const timer=setInterval(()=>{
+    try{const h=win.location.hash;if(h&&h.includes('access_token')){const p=new URLSearchParams(h.substring(1));accessToken=p.get('access_token');win.close();clearInterval(timer);getUserInfo();}}catch(e){}
+    if(win&&win.closed)clearInterval(timer);
+  },600);
+}
+async function getUserInfo(){
+  try{const r=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:`Bearer ${accessToken}`}});const i=await r.json();document.getElementById('userEmail').textContent=i.email||'Signed in';}catch(e){document.getElementById('userEmail').textContent='Signed in';}
+  document.getElementById('signinScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  loadData();
+}
+async function loadData(){
+  setStatus('Loading from Google Sheets...','yellow');
+  try{
+    const r=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A2:G2000`,{headers:{Authorization:`Bearer ${accessToken}`}});
+    if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error');}
+    const j=await r.json();
+    allData=(j.values||[]).map(r=>({date:r[0]||'',rno:r[1]||'',syear:r[2]||'',particulars:r[3]||'',income:r[4]||'',expense:r[5]||'',lhead:r[6]||''}));
+    renderAll();setStatus(`${allData.length} entries loaded`,'');
+  }catch(e){setStatus('Error: '+e.message,'red');}
+}
+function renderAll(){applyFilters();buildYearFilter();buildLheadList();renderReports();}
+function buildYearFilter(){const y=[...new Set(allData.map(r=>r.syear).filter(Boolean))].sort();const s=document.getElementById('filterYear');const c=s.value;s.innerHTML='<option value="">All S.Years</option>';y.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;if(v===c)o.selected=true;s.appendChild(o);});}
+function buildLheadList(){const dl=document.getElementById('lheadList');const h=[...new Set(allData.map(r=>r.lhead).filter(Boolean))];dl.innerHTML=h.map(v=>`<option value="${v}">`).join('');}
+function applyFilters(){
+  const s=document.getElementById('searchInput').value.toLowerCase();
+  const t=document.getElementById('filterType').value;
+  const y=document.getElementById('filterYear').value;
+  const f=document.getElementById('fromDate').value;
+  const to=document.getElementById('toDate').value;
+  filteredData=allData.filter(r=>{
+    if(s&&![r.particulars,r.lhead,r.rno,r.syear].some(v=>v.toLowerCase().includes(s)))return false;
+    if(y&&r.syear!==y)return false;
+    if(t==='income'&&!parseFloat(r.income))return false;
+    if(t==='expense'&&!parseFloat(r.expense))return false;
+    if(f&&r.date&&r.date<f)return false;
+    if(to&&r.date&&r.date>to)return false;
+    return true;
+  });
+  currentPage=1;renderTable();updateMetrics(filteredData);
+}
+function clearFilters(){['searchInput','filterType','filterYear','fromDate','toDate'].forEach(id=>document.getElementById(id).value='');applyFilters();}
+function updateMetrics(d){const i=d.reduce((s,r)=>s+(parseFloat(r.income)||0),0);const e=d.reduce((s,r)=>s+(parseFloat(r.expense)||0),0);document.getElementById('mIncome').textContent=fmt(i);document.getElementById('mExpense').textContent=fmt(e);document.getElementById('mBalance').textContent=fmt(i-e);document.getElementById('mCount').textContent=d.length;}
+function renderTable(){
+  const start=(currentPage-1)*PAGE_SIZE;const page=filteredData.slice(start,start+PAGE_SIZE);
+  const tbody=document.getElementById('tableBody');const empty=document.getElementById('emptyState');
+  if(!filteredData.length){tbody.innerHTML='';empty.style.display='block';document.getElementById('pageInfo').textContent='';return;}
+  empty.style.display='none';
+  tbody.innerHTML=page.map((r,i)=>{const gi=start+i;const hi=parseFloat(r.income)>0;const he=parseFloat(r.expense)>0;const b=hi?'<span class="badge badge-in">Income</span>':he?'<span class="badge badge-ex">Expense</span>':'';
+    return`<tr><td style="color:#aaa">${gi+1}</td><td>${r.date}</td><td>${r.rno}</td><td>${r.syear}</td><td>${r.particulars}</td><td class="amount-in">${r.income?fmt(r.income):''}</td><td class="amount-ex">${r.expense?fmt(r.expense):''}</td><td>${r.lhead}</td><td>${b}</td><td style="white-space:nowrap"><button class="btn btn-sm" onclick="openEditModal(${gi})">Edit</button> <button class="btn btn-sm btn-red" onclick="openDeleteModal(${gi})">Del</button></td></tr>`;
+  }).join('');
+  const pages=Math.ceil(filteredData.length/PAGE_SIZE);document.getElementById('pageInfo').textContent=`Page ${currentPage} of ${pages} · ${filteredData.length} entries`;
+}
+function prevPage(){if(currentPage>1){currentPage--;renderTable();}}
+function nextPage(){if(currentPage*PAGE_SIZE<filteredData.length){currentPage++;renderTable();}}
+function openAddModal(){editRowIndex=null;document.getElementById('modalTitle').textContent='Add entry';document.getElementById('saveBtn').textContent='Save entry';['fDate','fRno','fSyear','fParticulars','fIncome','fExpense','fLhead'].forEach(id=>document.getElementById(id).value='');document.getElementById('fDate').value=new Date().toISOString().split('T')[0];document.getElementById('entryModal').classList.add('open');}
+function openEditModal(idx){editRowIndex=idx;const r=allData[idx];document.getElementById('modalTitle').textContent='Edit entry';document.getElementById('saveBtn').textContent='Update entry';document.getElementById('fDate').value=r.date;document.getElementById('fRno').value=r.rno;document.getElementById('fSyear').value=r.syear;document.getElementById('fParticulars').value=r.particulars;document.getElementById('fIncome').value=r.income;document.getElementById('fExpense').value=r.expense;document.getElementById('fLhead').value=r.lhead;document.getElementById('entryModal').classList.add('open');}
+function closeModal(){document.getElementById('entryModal').classList.remove('open');}
+function openDeleteModal(idx){deleteRowIndex=idx;document.getElementById('deleteModal').classList.add('open');}
+async function saveEntry(){
+  const e={date:document.getElementById('fDate').value,rno:document.getElementById('fRno').value,syear:document.getElementById('fSyear').value,particulars:document.getElementById('fParticulars').value,income:document.getElementById('fIncome').value,expense:document.getElementById('fExpense').value,lhead:document.getElementById('fLhead').value};
+  if(!e.particulars){alert('Particulars is required.');return;}
+  closeModal();const row=[e.date,e.rno,e.syear,e.particulars,e.income,e.expense,e.lhead];setStatus('Saving...','yellow');
+  try{
+    if(editRowIndex!==null){const sr=editRowIndex+2;await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A${sr}:G${sr}?valueInputOption=USER_ENTERED`,{method:'PUT',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({values:[row]})});}
+    else{await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A:G:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,{method:'POST',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({values:[row]})});}
+    await loadData();
+  }catch(e){setStatus('Save failed: '+e.message,'red');}
+}
+async function confirmDelete(){
+  document.getElementById('deleteModal').classList.remove('open');const sr=deleteRowIndex+2;setStatus('Deleting...','yellow');
+  try{await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate`,{method:'POST',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({requests:[{deleteDimension:{range:{sheetId:0,dimension:'ROWS',startIndex:sr-1,endIndex:sr}}}]})});await loadData();}
+  catch(e){setStatus('Delete failed: '+e.message,'red');}
+}
+function renderReports(){
+  const inc=allData.reduce((s,r)=>s+(parseFloat(r.income)||0),0);const exp=allData.reduce((s,r)=>s+(parseFloat(r.expense)||0),0);
+  document.getElementById('rIncome').textContent=fmt(inc);document.getElementById('rExpense').textContent=fmt(exp);document.getElementById('rBalance').textContent=fmt(inc-exp);
+  const years=[...new Set(allData.map(r=>r.syear).filter(Boolean))].sort();const iY={},eY={};
+  allData.forEach(r=>{const y=r.syear||'Unknown';iY[y]=(iY[y]||0)+(parseFloat(r.income)||0);eY[y]=(eY[y]||0)+(parseFloat(r.expense)||0);});
+  if(barChart)barChart.destroy();
+  barChart=new Chart(document.getElementById('barChart').getContext('2d'),{type:'bar',data:{labels:years,datasets:[{label:'Income',data:years.map(y=>Math.round(iY[y]||0)),backgroundColor:'#5DCAA5',borderRadius:5},{label:'Expense',data:years.map(y=>Math.round(eY[y]||0)),backgroundColor:'#F09595',borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{ticks:{callback:v=>'Rs.'+v.toLocaleString('en-IN')}}}}});
+  const lh={};allData.forEach(r=>{const k=r.lhead||'Uncategorized';if(!lh[k])lh[k]={i:0,e:0};lh[k].i+=parseFloat(r.income)||0;lh[k].e+=parseFloat(r.expense)||0;});
+  document.getElementById('lheadBody').innerHTML=Object.entries(lh).sort((a,b)=>(b[1].i+b[1].e)-(a[1].i+a[1].e)).map(([k,v])=>`<tr><td><strong>${k}</strong></td><td class="amount-in">${fmt(v.i)}</td><td class="amount-ex">${fmt(v.e)}</td><td style="font-weight:600">${fmt(v.i-v.e)}</td></tr>`).join('');
+}
+function switchTab(tab,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('tabLedger').style.display=tab==='ledger'?'block':'none';document.getElementById('tabReports').style.display=tab==='reports'?'block':'none';if(tab==='reports')renderReports();}
+function toggleExport(){document.getElementById('exportDrop').classList.toggle('open');}
+document.addEventListener('click',e=>{if(!document.getElementById('exportWrap').contains(e.target))document.getElementById('exportDrop').classList.remove('open');});
+function exportCSV(){const h=['DATE','RNO','SYEAR','PARTICULARS','INCOME','EXPENSE','LHEAD'];const r=filteredData.map(r=>[r.date,r.rno,r.syear,r.particulars,r.income,r.expense,r.lhead].map(v=>`"${v}"`).join(','));const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent([h.join(','),...r].join('\n'));a.download=`temple_accounts_${new Date().toISOString().split('T')[0]}.csv`;a.click();}
+function exportPDF(){
+  const{jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});const pw=doc.internal.pageSize.getWidth();const now=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  doc.setFillColor(29,158,117);doc.rect(0,0,pw,22,'F');doc.setTextColor(255,255,255);doc.setFontSize(16);doc.setFont('helvetica','bold');doc.text('Temple Accounts Ledger',14,10);doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text('Generated: '+now,14,17);
+  const inc=filteredData.reduce((s,r)=>s+(parseFloat(r.income)||0),0);const exp=filteredData.reduce((s,r)=>s+(parseFloat(r.expense)||0),0);const bal=inc-exp;
+  const cw=(pw-28)/3;const sy=33;
+  [{label:'Total Income',value:'Rs. '+fmtNum(inc),r:15,g:110,b:86},{label:'Total Expense',value:'Rs. '+fmtNum(exp),r:163,g:45,b:45},{label:'Net Balance',value:'Rs. '+fmtNum(bal),r:bal>=0?24:163,g:bal>=0?95:45,b:bal>=0?165:45}].forEach((item,i)=>{
+    const x=14+i*cw;doc.setFillColor(248,248,248);doc.roundedRect(x,sy,cw-4,14,2,2,'F');doc.setFontSize(7);doc.setTextColor(140,140,140);doc.setFont('helvetica','normal');doc.text(item.label,x+4,sy+5);doc.setFontSize(10);doc.setTextColor(item.r,item.g,item.b);doc.setFont('helvetica','bold');doc.text(item.value,x+4,sy+12);
+  });
+  doc.autoTable({startY:sy+20,head:[['#','Date','RNO','S.Year','Particulars','Income','Expense','L.Head','Type']],body:filteredData.map((r,i)=>[i+1,r.date,r.rno,r.syear,r.particulars.length>42?r.particulars.substring(0,40)+'...':r.particulars,r.income?'Rs.'+fmtNum(r.income):'-',r.expense?'Rs.'+fmtNum(r.expense):'-',r.lhead,parseFloat(r.income)>0?'Income':parseFloat(r.expense)>0?'Expense':'']),foot:[['','','','','Total ('+filteredData.length+' entries)','Rs.'+fmtNum(inc),'Rs.'+fmtNum(exp),'','']],styles:{fontSize:8,cellPadding:3,lineColor:[225,225,225],lineWidth:0.2},headStyles:{fillColor:[29,158,117],textColor:255,fontStyle:'bold',fontSize:8},footStyles:{fillColor:[240,240,240],fontStyle:'bold',fontSize:8,textColor:[60,60,60]},alternateRowStyles:{fillColor:[248,252,250]},columnStyles:{0:{cellWidth:8,halign:'center'},1:{cellWidth:22},2:{cellWidth:15},3:{cellWidth:15},4:{cellWidth:72},5:{cellWidth:28,halign:'right',textColor:[15,110,86],fontStyle:'bold'},6:{cellWidth:28,halign:'right',textColor:[163,45,45],fontStyle:'bold'},7:{cellWidth:28},8:{cellWidth:18,halign:'center'}},margin:{left:14,right:14},didDrawPage:()=>{const pg=doc.internal.getCurrentPageInfo().pageNumber;const tot=doc.internal.getNumberOfPages();doc.setFontSize(7);doc.setTextColor(160,160,160);doc.setFont('helvetica','normal');doc.text('Temple Accounts Ledger',14,doc.internal.pageSize.getHeight()-6);doc.text('Page '+pg+' of '+tot,pw-14,doc.internal.pageSize.getHeight()-6,{align:'right'});}});
+  doc.save('temple_accounts_'+now.replace(/ /g,'_')+'.pdf');setStatus('PDF exported — '+filteredData.length+' entries');
+}
+function signOut(){accessToken=null;allData=[];document.getElementById('signinScreen').style.display='flex';document.getElementById('mainApp').style.display='none';}
+const cid=localStorage.getItem('templeClientId')||'800982748793-q2j8ss2koma1iotqdro303h646q34chb.apps.googleusercontent.com';
+if(document.getElementById('clientIdInput'))document.getElementById('clientIdInput').value=cid;
+</script>
+</body>
+</html>

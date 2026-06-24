@@ -10,6 +10,8 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; background: #f5f5f0; color: #1a1a1a; min-height: 100vh; }
+
+  /* SIGNIN */
   #signinScreen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 1rem; text-align: center; padding: 2rem; }
   .signin-card { background: #fff; border-radius: 16px; padding: 2.5rem 2rem; max-width: 380px; width: 100%; border: 1px solid #e8e8e0; }
   .temple-icon { font-size: 48px; margin-bottom: 0.5rem; }
@@ -22,6 +24,8 @@
   .client-id-section label { font-size: 12px; font-weight: 500; color: #555; display: block; margin-bottom: 6px; }
   .client-id-section input { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; color: #333; }
   .client-id-section small { font-size: 11px; color: #aaa; display: block; margin-top: 4px; }
+
+  /* MAIN APP */
   #mainApp { display: none; }
   .topbar { background: #fff; border-bottom: 1px solid #e8e8e0; padding: 0 1.5rem; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
   .topbar-left { display: flex; align-items: center; gap: 10px; }
@@ -29,15 +33,18 @@
   .topbar-title { font-size: 16px; font-weight: 600; color: #1a1a1a; }
   .topbar-right { display: flex; align-items: center; gap: 8px; }
   .user-chip { font-size: 12px; color: #888; background: #f5f5f0; padding: 4px 10px; border-radius: 20px; }
+
   .main-content { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
   .status-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #666; background: #fff; border: 1px solid #e8e8e0; border-radius: 8px; padding: 8px 14px; margin-bottom: 1.5rem; }
   .dot { width: 7px; height: 7px; border-radius: 50%; background: #1D9E75; flex-shrink: 0; }
   .dot.red { background: #E24B4A; }
   .dot.yellow { background: #EF9F27; }
+
   .tabs { display: flex; gap: 2px; border-bottom: 1px solid #e8e8e0; margin-bottom: 1.5rem; }
   .tab { padding: 10px 18px; cursor: pointer; border: none; background: none; font-size: 13px; color: #888; border-bottom: 2px solid transparent; margin-bottom: -1px; font-weight: 500; transition: color 0.15s; }
   .tab:hover { color: #444; }
   .tab.active { color: #1D9E75; border-bottom-color: #1D9E75; }
+
   .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
   .metric { background: #fff; border: 1px solid #e8e8e0; border-radius: 10px; padding: 1rem 1.25rem; }
   .metric-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
@@ -46,18 +53,23 @@
   .metric-value.red { color: #E24B4A; }
   .metric-value.blue { color: #185FA5; }
   .metric-value.gray { color: #444; }
+
   .toolbar { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
   .toolbar input, .toolbar select { padding: 7px 10px; border: 1px solid #ddd; border-radius: 7px; font-size: 13px; color: #333; background: #fff; }
   .toolbar input:focus, .toolbar select:focus { outline: none; border-color: #1D9E75; }
   .toolbar input[type="text"] { min-width: 180px; }
   .toolbar-right { margin-left: auto; display: flex; gap: 8px; }
+
   .btn { padding: 7px 14px; border: 1px solid #ddd; border-radius: 7px; background: #fff; color: #333; cursor: pointer; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; white-space: nowrap; }
   .btn:hover { background: #f5f5f0; }
   .btn-green { background: #1D9E75; color: #fff; border-color: #1D9E75; }
   .btn-green:hover { background: #0F6E56; }
   .btn-red { background: #E24B4A; color: #fff; border-color: #E24B4A; }
   .btn-red:hover { background: #A32D2D; }
+  .btn-blue { background: #185FA5; color: #fff; border-color: #185FA5; }
+  .btn-blue:hover { background: #0C447C; }
   .btn-sm { padding: 5px 10px; font-size: 12px; }
+
   .export-wrap { position: relative; }
   .export-drop { display: none; position: absolute; right: 0; top: 38px; background: #fff; border: 1px solid #ddd; border-radius: 8px; min-width: 170px; z-index: 50; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
   .export-drop.open { display: block; }
@@ -66,6 +78,7 @@
   .export-drop button:first-child { border-radius: 8px 8px 0 0; }
   .export-drop button:last-child { border-radius: 0 0 8px 8px; }
   .export-drop hr { border: none; border-top: 1px solid #f0f0f0; }
+
   .table-wrap { background: #fff; border: 1px solid #e8e8e0; border-radius: 10px; overflow: hidden; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { text-align: left; padding: 10px 12px; background: #fafaf8; border-bottom: 1px solid #e8e8e0; font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; }
@@ -75,6 +88,271 @@
   .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
   .badge-in { background: #E1F5EE; color: #085041; }
   .badge-ex { background: #FCEBEB; color: #791F1F; }
+  .amount-in { color: #0F6E56; font-weight: 600; }
+  .amount-ex { color: #A32D2D; font-weight: 600; }
+
+  .pagination { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 12px 16px; background: #fafaf8; border-top: 1px solid #e8e8e0; font-size: 12px; color: #888; }
+
+  .empty-state { text-align: center; padding: 3rem; color: #aaa; }
+  .empty-state div { font-size: 32px; margin-bottom: 8px; }
+
+  /* MODAL */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; align-items: center; justify-content: center; }
+  .modal-bg.open { display: flex; }
+  .modal { background: #fff; border-radius: 14px; padding: 1.75rem; width: 460px; max-width: 95vw; border: 1px solid #e8e8e0; }
+  .modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 1.25rem; }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 500; color: #666; margin-bottom: 5px; }
+  .form-group input, .form-group select { width: 100%; padding: 9px 11px; border: 1px solid #ddd; border-radius: 7px; font-size: 13px; color: #333; background: #fff; }
+  .form-group input:focus, .form-group select:focus { outline: none; border-color: #1D9E75; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.5rem; }
+
+  /* REPORTS */
+  .chart-box { background: #fff; border: 1px solid #e8e8e0; border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem; }
+  .chart-box h3 { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 1rem; }
+  .chart-canvas { height: 220px; }
+
+  @media (max-width: 600px) {
+    .topbar-title { font-size: 14px; }
+    .metric-grid { grid-template-columns: 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .toolbar input[type="text"] { min-width: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIGN IN -->
+<div id="signinScreen">
+  <div class="signin-card">
+    <div class="temple-icon">🛕</div>
+    <h1>Temple Accounts</h1>
+    <p>Sign in with your Google account to access and manage your temple accounting spreadsheet.</p>
+
+    <div class="client-id-section">
+      <label>Google OAuth Client ID</label>
+      <input type="text" id="clientIdInput" placeholder="Paste your Client ID here..." />
+      <small>From Google Cloud Console → APIs & Services → Credentials</small>
+    </div>
+
+    <br>
+    <button class="google-btn" onclick="startOAuth()">
+      <svg width="18" height="18" viewBox="0 0 18 18">
+        <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/>
+        <path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/>
+        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58z"/>
+      </svg>
+      Sign in with Google
+    </button>
+    <div class="sheet-id">Sheet: 1YBw96Mkf5qpOf7CoRnqPyIk0goXimgCSErSEXFnneP0</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">🛕</div>
+      <span class="topbar-title">Temple Accounts</span>
+    </div>
+    <div class="topbar-right">
+      <span class="user-chip" id="userEmail"></span>
+      <button class="btn btn-sm" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="status-bar">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">Loading...</span>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('ledger', this)">Ledger</button>
+      <button class="tab" onclick="switchTab('reports', this)">Reports</button>
+      <button class="tab" onclick="switchTab('summary', this)">Summary</button>
+    </div>
+
+    <!-- LEDGER TAB -->
+    <div id="tabLedger">
+      <div class="metric-grid">
+        <div class="metric"><div class="metric-label">Total income</div><div class="metric-value green" id="mIncome">—</div></div>
+        <div class="metric"><div class="metric-label">Total expense</div><div class="metric-value red" id="mExpense">—</div></div>
+        <div class="metric"><div class="metric-label">Balance</div><div class="metric-value blue" id="mBalance">—</div></div>
+        <div class="metric"><div class="metric-label">Entries</div><div class="metric-value gray" id="mCount">—</div></div>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="🔍  Search particulars, L.Head, RNO..." oninput="applyFilters()">
+        <select id="filterType" onchange="applyFilters()">
+          <option value="">All types</option>
+          <option value="income">Income only</option>
+          <option value="expense">Expense only</option>
+        </select>
+        <select id="filterYear" onchange="applyFilters()">
+          <option value="">All S.Years</option>
+        </select>
+        <input type="date" id="fromDate" onchange="applyFilters()" title="From date">
+        <input type="date" id="toDate" onchange="applyFilters()" title="To date">
+        <button class="btn btn-sm" onclick="clearFilters()">✕ Clear</button>
+        <div class="toolbar-right">
+          <button class="btn btn-sm" onclick="loadData()">↻ Refresh</button>
+          <div class="export-wrap" id="exportWrap">
+            <button class="btn btn-sm" onclick="toggleExport()">⬇ Export ▾</button>
+            <div class="export-drop" id="exportDrop">
+              <button onclick="exportCSV(); toggleExport()">📄 Export as CSV</button>
+              <hr>
+              <button onclick="exportPDF(); toggleExport()">📕 Export as PDF</button>
+            </div>
+          </div>
+          <button class="btn btn-green btn-sm" onclick="openAddModal()">+ Add entry</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Date</th><th>RNO</th><th>S.Year</th><th>Particulars</th>
+              <th>Income</th><th>Expense</th><th>L.Head</th><th>Type</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        <div id="emptyState" class="empty-state" style="display:none;">
+          <div>📭</div>No entries found
+        </div>
+        <div class="pagination">
+          <span id="pageInfo"></span>
+          &nbsp;
+          <button class="btn btn-sm" onclick="prevPage()">‹</button>
+          <button class="btn btn-sm" onclick="nextPage()">›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORTS TAB -->
+    <div id="tabReports" style="display:none;">
+      <div class="metric-grid" style="margin-bottom:1.5rem;">
+        <div class="metric"><div class="metric-label">Total income</div><div class="metric-value green" id="rIncome">—</div></div>
+        <div class="metric"><div class="metric-label">Total expense</div><div class="metric-value red" id="rExpense">—</div></div>
+        <div class="metric"><div class="metric-label">Net balance</div><div class="metric-value blue" id="rBalance">—</div></div>
+      </div>
+      <div class="chart-box">
+        <h3>Income vs expense by S.Year</h3>
+        <div class="chart-canvas"><canvas id="barChart"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3>Category breakdown by L.Head</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>L.Head</th><th>Income</th><th>Expense</th><th>Net</th></tr></thead>
+            <tbody id="lheadBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY TAB -->
+    <div id="tabSummary" style="display:none;">
+      <div class="metric-grid" style="margin-bottom:1.5rem;">
+        <div class="metric"><div class="metric-label">Total income</div><div class="metric-value green" id="sIncome">—</div></div>
+        <div class="metric"><div class="metric-label">Total expense</div><div class="metric-value red" id="sExpense">—</div></div>
+        <div class="metric"><div class="metric-label">Net balance</div><div class="metric-value blue" id="sBalance">—</div></div>
+        <div class="metric"><div class="metric-label">Categories</div><div class="metric-value gray" id="sCatCount">—</div></div>
+      </div>
+      <div class="toolbar">
+        <input type="text" id="summarySearch" placeholder="Search L.Head..." oninput="renderSummary()">
+        <select id="summaryYear" onchange="renderSummary()">
+          <option value="">All S.Years</option>
+        </select>
+        <div class="toolbar-right">
+          <button class="btn btn-sm" onclick="exportSummaryPDF()">Export PDF</button>
+          <button class="btn btn-green btn-sm" onclick="openSummaryModal()">+ Add row</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>L.Head / Category</th>
+              <th>S.Year</th>
+              <th>Total Income</th>
+              <th>Total Expense</th>
+              <th>Net Balance</th>
+              <th>Entries</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="summaryBody"></tbody>
+          <tfoot id="summaryFoot"></tfoot>
+        </table>
+        <div id="summaryEmpty" class="empty-state" style="display:none;"><div>📭</div>No summary data</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY ADD/EDIT MODAL -->
+<div class="modal-bg" id="summaryModal" onclick="if(event.target===this)closeSummaryModal()">
+  <div class="modal">
+    <h2 id="summaryModalTitle">Add summary row</h2>
+    <div class="form-group"><label>L.Head / Category</label><input type="text" id="sfLhead" list="lheadList" placeholder="e.g. Donations"></div>
+    <div class="form-group"><label>S.Year</label><input type="text" id="sfSyear" placeholder="e.g. 2081"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Total Income (Rs.)</label><input type="number" id="sfIncome" placeholder="0" min="0"></div>
+      <div class="form-group"><label>Total Expense (Rs.)</label><input type="number" id="sfExpense" placeholder="0" min="0"></div>
+    </div>
+    <p style="font-size:11px;color:#aaa;margin-top:-8px;">Note: Adding a summary row creates a single entry in your sheet with these totals.</p>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeSummaryModal()">Cancel</button>
+      <button class="btn btn-green" onclick="saveSummaryRow()" id="summaryModalBtn">Save row</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY DELETE MODAL -->
+<div class="modal-bg" id="summaryDeleteModal">
+  <div class="modal">
+    <h2>Delete summary entries?</h2>
+    <p style="color:#888;font-size:13px;margin-top:6px;line-height:1.6;">This will delete <strong id="summaryDeleteCount"></strong> transaction(s) under this L.Head from your Google Sheet.</p>
+    <div class="modal-footer">
+      <button class="btn" onclick="document.getElementById('summaryDeleteModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-red" onclick="confirmSummaryDelete()">Delete all</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-bg" id="entryModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h2 id="modalTitle">Add entry</h2>
+    <div class="form-row">
+      <div class="form-group"><label>Date</label><input type="date" id="fDate"></div>
+      <div class="form-group"><label>Receipt No. (RNO)</label><input type="text" id="fRno" placeholder="e.g. R001"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Samvat Year (SYEAR)</label><input type="text" id="fSyear" placeholder="e.g. 2081"></div>
+      <div class="form-group"><label>L.Head (category)</label><input type="text" id="fLhead" list="lheadList" placeholder="e.g. Donations"></div>
+      <datalist id="lheadList"></datalist>
+    </div>
+    <div class="form-group"><label>Particulars</label><input type="text" id="fParticulars" placeholder="Description of transaction"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Income (Rs.)</label><input type="number" id="fIncome" placeholder="0" min="0"></div>
+      <div class="form-group"><label>Expense (Rs.)</label><input type="number" id="fExpense" placeholder="0" min="0"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-green" onclick="saveEntry()" id="saveBtn">Save entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-bg" id="deleteMo  .badge-ex { background: #FCEBEB; color: #791F1F; }
   .amount-in { color: #0F6E56; font-weight: 600; }
   .amount-ex { color: #A32D2D; font-weight: 600; }
   .pagination { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 12px 16px; background: #fafaf8; border-top: 1px solid #e8e8e0; font-size: 12px; color: #888; }
